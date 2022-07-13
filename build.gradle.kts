@@ -9,14 +9,14 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    jcenter() // Required by postgrest-kt, reported as #11
 }
 
 dependencies {
-    testImplementation(kotlin("test"))
-}
+    api("io.supabase:postgrest-kt:0.2.0")
 
-tasks.test {
-    useJUnitPlatform()
+    // very handy for e.g. id columns so imho it should be included (already a dependency of postgrest-kt)
+    api("com.fasterxml.jackson.core:jackson-annotations:2.13.3")
 }
 
 tasks.withType<KotlinCompile> {
