@@ -24,6 +24,13 @@ dependencies {
 
     // deserialize realtime payloads
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+
+    // http client used for gotrue client
+    val ktorVersion = "2.0.2"
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 }
 
 tasks.withType<KotlinCompile> {
