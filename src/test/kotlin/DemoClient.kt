@@ -1,11 +1,16 @@
 import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.serialization.Serializable
 import me.profiluefter.supabase.SupabaseClient
+import kotlin.random.Random
+import kotlin.random.nextUInt
 
 suspend fun main() {
     val client = SupabaseClient(System.getenv("BASE_URL"), System.getenv("TOKEN"))
 
-    client.signIn("demo@example.org", "123456")
+    val randomUser = Random.nextUInt()
+
+    client.signUp("$randomUser@example.org", "123456")
+    client.signIn("$randomUser@example.org", "123456")
 
     println(client.user)
 

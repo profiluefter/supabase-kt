@@ -11,6 +11,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
+import me.profiluefter.supabase.realtime.jsonString
 
 class GoTrueClient(baseURL: String, private var anonToken: String, httpClient: HttpClient = HttpClient()) {
     private val httpClient = httpClient.config {
@@ -54,7 +55,16 @@ class GoTrueClient(baseURL: String, private var anonToken: String, httpClient: H
 
 suspend fun HttpResponse.handleError(): HttpResponse {
     if (!status.isSuccess())
-        throw GoTrueApiException(body())
+        try {
+            val errorBody = body<JsonObject>()
+            val code = errorBody["error"]?.jsonString ?: errorBody["code"]?.jsonString
+            val description = errorBody["error_description"]?.jsonString ?: errorBody["msg"]?.jsonString
+            throw GoTrueApiException(errorBody, code, description)
+        } catch (e: GoTrueApiException) {
+            throw e
+        } catch (e: Exception) {
+            throw GoTrueApiException(bodyAsText())
+        }
     return this
 }
 
@@ -82,10 +92,10 @@ data class User(
     val role: String,
     val email: String,
     @SerialName("email_confirmed_at")
-    val emailConfirmedAt: String?, // TODO: deserialize dates correctly
+    val emailConfirmedAt: String? = null, // TODO: deserialize dates correctly
     val phone: String,
     @SerialName("confirmed_at")
-    val confirmedAt: String?,
+    val confirmedAt: String? = null,
     @SerialName("last_sign_in_at")
     val lastSignInAt: String, // TODO: check which values should be nullable
     @SerialName("app_metadata")
@@ -115,15 +125,18 @@ data class Identity(
     val updatedAt: String
 )
 
-@Serializable
-data class ApiErrorResponse(
-    val code: Long,
-    @SerialName("msg")
-    val message: String
-)
+class GoTrueApiException internal constructor(message: String) : Exception(message) {
+    internal constructor(errorBody: JsonObject, code: String?, description: String?) : this("$code: $description") {
+        this.errorBody = errorBody
+        this.code = code
+        this.description = description
+    }
 
-class GoTrueApiException internal constructor(response: ApiErrorResponse) :
-    Exception("${response.code}: ${response.message}") {
-    val code = response.code
-    val apiMessage = response.message
+    var errorBody: JsonObject? = null
+        private set
+
+    var code: String? = null
+        private set
+    var description: String? = null
+        private set
 }
