@@ -1,11 +1,15 @@
-import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.profiluefter.supabase.SupabaseClient
 import kotlin.random.Random
 import kotlin.random.nextUInt
 
 suspend fun main() {
-    val client = SupabaseClient(System.getenv("BASE_URL"), System.getenv("TOKEN"))
+    val client = SupabaseClient(
+        "http://localhost:64321",
+        // DEFAULT anon token (not a leaked secret)
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24ifQ.625_WdcF3KHqz5amU0x2X5WWHP-OEs_4qj0ssLNHzTs"
+    )
 
     val randomUser = Random.nextUInt()
 
@@ -61,9 +65,8 @@ suspend fun main() {
 
 @Serializable
 data class Vehicle(
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     val id: Int? = null,
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY, value = "user_id")
+    @SerialName("user_id")
     val userId: String? = null,
     val name: String = ""
 )

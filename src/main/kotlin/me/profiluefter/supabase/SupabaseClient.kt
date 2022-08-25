@@ -1,22 +1,32 @@
 package me.profiluefter.supabase
 
 import io.supabase.postgrest.PostgrestClient
-import io.supabase.postgrest.PostgrestDefaultClient
+import io.supabase.postgrest.http.PostgrestHttpClientApache
 import me.profiluefter.supabase.gotrue.GoTrueClient
 import me.profiluefter.supabase.gotrue.TokenResponse
 import me.profiluefter.supabase.gotrue.User
+import me.profiluefter.supabase.postgrest.PostgrestJsonConverterKotlinXSerialization
 import me.profiluefter.supabase.realtime.RealtimeClient
+import org.apache.hc.client5.http.impl.classic.HttpClients
 import java.net.URI
 
 class SupabaseClient(baseURL: String, private val anonToken: String) {
     private val baseURLWithSlash = if (baseURL.endsWith("/")) baseURL else "$baseURL/"
 
-    private var postgrestClient: PostgrestClient = PostgrestDefaultClient(
+    private var postgrestJsonConverter = PostgrestJsonConverterKotlinXSerialization()
+
+    private var postgrestClient: PostgrestClient = PostgrestClient(
         URI("${baseURLWithSlash}rest/v1/"),
         mapOf(
             "Authorization" to "Bearer $anonToken",
             "apikey" to anonToken
-        )
+        ),
+        null,
+        PostgrestHttpClientApache(
+            jsonConverter = postgrestJsonConverter,
+            httpClient = { HttpClients.createDefault() }
+        ),
+        postgrestJsonConverter
     )
 
     private var realtimeClient: RealtimeClient = RealtimeClient(
@@ -32,12 +42,18 @@ class SupabaseClient(baseURL: String, private val anonToken: String) {
     var userToken: String? = null
         set(value) {
             field = value
-            postgrestClient = PostgrestDefaultClient(
+            postgrestClient = PostgrestClient(
                 URI("${baseURLWithSlash}rest/v1/"),
                 mapOf(
                     "Authorization" to "Bearer $value",
                     "apikey" to anonToken
-                )
+                ),
+                null,
+                PostgrestHttpClientApache(
+                    jsonConverter = postgrestJsonConverter,
+                    httpClient = { HttpClients.createDefault() }
+                ),
+                postgrestJsonConverter
             )
             realtimeClient.userToken = value
             authClient.userToken = value

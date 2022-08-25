@@ -17,3 +17,5 @@ alter table vehicles
 create policy vehicles_user_id_policy on vehicles
     using (auth.uid() = user_id)
     with check (auth.uid() = user_id);
+
+alter publication supabase_realtime add table vehicles;
