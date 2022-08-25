@@ -10,8 +10,13 @@ fun decodeRealtimeMessage(raw: String): Message {
         ref = rawArray[1].jsonString ?: "",
         topic = rawArray[2].jsonString ?: "",
         event = rawArray[3].jsonString ?: "",
-        rawPayload = Json.decodeFromJsonElement<Map<String, JsonElement>>(rawArray[4]) + mapOf("jsonElement" to rawArray[4])
+        rawPayload = createRawPayload(rawArray)
     )
+}
+
+private fun createRawPayload(rawArray: JsonArray): Map<String, Any?> {
+    val rawPayload = Json.decodeFromJsonElement<Map<String, JsonElement>>(rawArray[4]) + mapOf("jsonElement" to rawArray[4])
+    return rawPayload + mapOf("status" to rawPayload["status"]?.jsonString)
 }
 
 val JsonElement.jsonString

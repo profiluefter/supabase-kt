@@ -6,7 +6,13 @@ import org.phoenixframework.Message
 import org.phoenixframework.Payload
 
 class RealtimeChannel<T>(private val channel: Channel) {
-    fun join() = channel.join()
+    fun join(onError: (Message) -> Unit = {}, onTimeout: (Message) -> Unit = {}, onSuccess: (Message) -> Unit = {}) {
+        channel
+            .join()
+            .receive("error", onError)
+            .receive("timeout", onTimeout)
+            .receive("ok", onSuccess)
+    }
 
     fun onRawEvent(event: String, callback: (Message) -> Unit) = this.apply {
         channel.on(event) {
