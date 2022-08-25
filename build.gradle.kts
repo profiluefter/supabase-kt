@@ -25,9 +25,6 @@ repositories {
 dependencies {
     api("io.supabase:postgrest-kt:0.2.0")
 
-    // very handy for e.g. id columns so imho it should be included (already a dependency of postgrest-kt)
-    api("com.fasterxml.jackson.core:jackson-annotations:2.13.3")
-
     // for realtime
     implementation ("com.github.dsrees:JavaPhoenixClient:1.0.0")
 
