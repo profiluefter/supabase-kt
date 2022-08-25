@@ -26,7 +26,8 @@ dependencies {
     api("io.supabase:postgrest-kt:0.2.0")
 
     // for realtime
-    implementation ("com.github.dsrees:JavaPhoenixClient:1.0.0")
+    // having this as "api" shouldn't be necessary but is currently needed for RealtimeChannel error handling
+    api("com.github.dsrees:JavaPhoenixClient:1.0.0")
 
     // deserialize realtime payloads
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")

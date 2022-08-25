@@ -28,9 +28,17 @@ suspend fun main() {
         .onDelete<Vehicle> {
             println("DELETE $it")
         }
-        .join(::println, ::println) {
-            println("Joined realtime")
-        }
+        .join(
+            {
+                println(it)
+            },
+            {
+                println("Realtime timeout")
+            },
+            {
+                println("Joined realtime")
+            }
+        )
 
     val vehicles = client.from<Vehicle>("vehicles")
         .select()
